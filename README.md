@@ -21,7 +21,7 @@ cd xink_airdrop_bot
 2. Install Dependencies
 
 pip install requests
-
+node index.js
 3. Configure Your Files
 
 accounts.json (Authorization Tokens)
