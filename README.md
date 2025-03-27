@@ -15,7 +15,7 @@ Follow the steps below to install and run the script in Termux:
 
 1. Clone the Repository
 
-git clone https://github.com/himanshusaroha648/xink_airdrop_bot.git  
+git clone https://github.com/himanshusaroha648/xink_airdrop_bot.git
 cd xink_airdrop_bot
 
 2. Install Dependencies
