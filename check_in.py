@@ -2,17 +2,25 @@ import requests
 import json
 import time
 from datetime import datetime
+from web3 import Web3
+from eth_account.messages import encode_defunct
+from cryptography.fernet import Fernet  # For encryption
 
-# Configuration
+# Config
 API_URL = "https://api.x.ink/v1/check-in"
-ACCOUNTS_FILE = "accounts.json"
+WALLETS_FILE = "wallets.json"
 PROXIES_FILE = "proxies.txt"
+WEB3_RPC = "https://mainnet.infura.io/v3/YOUR_INFURA_KEY"  # Or any RPC
+
+# Load Encryption Key (Generate once using Fernet.generate_key())
+KEY = b'YOUR_FERNET_KEY'  
+cipher = Fernet(KEY)
 
 def get_time():
     return datetime.now().strftime("[%d/%m/%Y %H:%M:%S]")
 
-def load_accounts():
-    with open(ACCOUNTS_FILE) as f:
+def load_wallets():
+    with open(WALLETS_FILE) as f:
         return json.load(f)
 
 def load_proxies():
@@ -22,40 +30,50 @@ def load_proxies():
     except FileNotFoundError:
         return None
 
-def check_in(account, proxy, index, total):
+def decrypt_private_key(encrypted_key):
+    return cipher.decrypt(encrypted_key.encode()).decode()
+
+def get_wallet_signature(wallet_address, private_key):
+    w3 = Web3(Web3.HTTPProvider(WEB3_RPC))
+    message = encode_defunct(text="Login to Xink Airdrop")
+    signed = w3.eth.account.sign_message(message, private_key)
+    return signed.signature.hex()
+
+def check_in(wallet, proxy, index, total):
+    private_key = decrypt_private_key(wallet["encryptedPrivateKey"])
+    signature = get_wallet_signature(wallet["walletAddress"], private_key)
+    
     headers = {
-        "authorization": account["token"],
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+        "Authorization": f"Wallet {wallet['walletAddress']}:{signature}",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)..."
     }
-    proxies = {"http": f"http://{proxy}", "https": f"http://{proxy}"} if proxy else None
+    proxies = {"http": proxy, "https": proxy} if proxy else None
 
     try:
-        # Show proxy IP
-        ip = proxy.split(':')[0] if proxy else "No Proxy"
-        print(f"{get_time()} [IP Using] {ip}")
+        ip = proxy.split('@')[1].split(':')[0] if proxy else "No Proxy"
+        print(f"{get_time()} [IP] {ip}")
 
-        # Check-in request
-        print(f"{get_time()} [Processing] Daily checkin...")
+        print(f"{get_time()} [Wallet] {wallet['walletAddress']}")
         response = requests.post(API_URL, headers=headers, proxies=proxies, timeout=10)
-        
+
         if response.status_code == 200:
-            print(f"{get_time()} [Status] Checkin successful\n")
+            print(f"{get_time()} [Status] Check-in ✅\n")
         else:
-            print(f"{get_time()} [Status] Failed (Code: {response.status_code})\n")
+            print(f"{get_time()} [Status] Failed ❌ (Code: {response.status_code})\n")
 
     except Exception as e:
         print(f"{get_time()} [Error] {str(e)}\n")
 
 def main():
-    accounts = load_accounts()
+    wallets = load_wallets()
     proxies = load_proxies()
-    
-    print(f"\n{get_time()} Bot Started | Accounts: {len(accounts)} | Proxies: {len(proxies) if proxies else 0}")
+
+    print(f"\n{get_time()} Bot Started | Wallets: {len(wallets)} | Proxies: {len(proxies) if proxies else 0}")
     print("=" * 50 + "\n")
 
-    for i, account in enumerate(accounts, 1):
+    for i, wallet in enumerate(wallets, 1):
         proxy = proxies[i % len(proxies)] if proxies else None
-        check_in(account, proxy, i, len(accounts))
+        check_in(wallet, proxy, i, len(wallets))
         time.sleep(1)  # Avoid rate limits
 
     print(f"{get_time()} All tasks completed!")
