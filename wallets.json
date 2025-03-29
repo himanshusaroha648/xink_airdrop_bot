@@ -1,0 +1,7 @@
+[
+    {
+        "name": "Account1",
+        "walletAddress": "0x123...",
+        "privateKey": "0xabc..."  // Plain text (use only for testing!)
+    }
+]
