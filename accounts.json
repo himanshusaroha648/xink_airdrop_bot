@@ -1,4 +1,12 @@
 [
-       {"name":"Account1","token":"Bearer eyJhb..."},
-       {"name":"Account2","token":"Bearer eyJhb..."}
+    {
+        "name": "Account1",
+        "walletAddress": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        "encryptedPrivateKey": "U2FsdGVkX1+3q5J5J5J5..."  // AES-256 Encrypted
+    },
+    {
+        "name": "Account2",
+        "walletAddress": "0x852d45Dd6634C0532925a3b844Bc454e4438f99f",
+        "encryptedPrivateKey": "U2FsdGVkX1+9k8Lm5J5..."
+    }
 ]
