@@ -1,7 +1,12 @@
 [
     {
         "name": "Account1",
-        "walletAddress": "0x123...",
-        "privateKey": "0xabc..."  // Plain text (use only for testing!)
+        "walletAddress": "0xYourWallet1",
+        "privateKey": "0xYourPrivateKey1"
+    },
+    {
+        "name": "Account2",
+        "walletAddress": "0xYourWallet2",
+        "privateKey": "0xYourPrivateKey2"
     }
 ]
